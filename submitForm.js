@@ -31,7 +31,7 @@ let todaysDate = document.querySelector('input#todaysDate')
 todaysDate.addEventListener('change', (e) => {
 	console.log('changed')
 	newForm.date = e.target.value;
-  console.log(newForm.todaysDate);
+  console.log(newForm.date);
 })
  
 class TimeEntry {
@@ -170,6 +170,10 @@ totalHrs.addEventListener('click', () => {
 
 document.getElementById('submit').addEventListener("click", async (event) => {
     newForm.timeDetails = timeDetails
+    newForm.staffName = document.querySelector('input#staffName').value;
+    newForm.caregiverName = document.querySelector('input#caregiverName').value;
+    newForm.supervisorName = document.querySelector('input#supervisorName').value;
+    newForm.date = document.querySelector('input#todaysDate').value;
     console.log(newForm)
     submitForm(newForm, formName)
 })
