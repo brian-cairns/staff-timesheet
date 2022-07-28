@@ -193,10 +193,10 @@ async function submitForm(data, form) {
     body: JSON.stringify(document)
   })
     .then((response) => {
-      if (response.status == 200) {
+      if (response.status != 400 && response.status != 500) {
       showSuccess()
       } else {
-        showError(response.body)
+        showError(response.status)
       }
     })
     .catch((err) => showError(err))
