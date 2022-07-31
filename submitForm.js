@@ -178,6 +178,13 @@ document.getElementById('submit').addEventListener("click", async (event) => {
     submitForm(newForm, formName)
 })
 
+let printForm = document.getElementById('printToPDF')
+printForm.style.display = 'none'
+
+document.getElementById('submit').addEventListener("click", async (event) => {
+  submitForm(newForm, formName)
+})
+
 async function submitForm(data, form) {
   const document = {
     'form': form,
@@ -192,22 +199,54 @@ async function submitForm(data, form) {
     },
     body: JSON.stringify(document)
   })
-    .then((response) => {
-      if (response.status != 400 && response.status != 500) {
-      showSuccess()
-      } else {
-        showError(response.status)
-      }
-    })
+    .then(response => response.json())
+    .then(data => respond(data)) 
     .catch((err) => showError(err))
 }
 
-
-function showSuccess() {
-    document.getElementById('returnMessage').innerHTML = 'Form has been successfully submitted'
+function respond(data) {
+  let formId = data.formId
+  if (formId) {
+    showSuccess(formId)
+    let name = newForm.staffName  
+    sendNotification(formId, name)	  
+  } else {
+    showError(data.error)
+  }
 }
+
+function showSuccess(formId) {
+  document.getElementById('returnMessage').innerHTML = 'Form has been successfully submitted'
+  printForm.style.display = 'inline';
+  printForm.addEventListener('click', (e) => {
+  location.href = `phoenix-freedom-foundation-backend.webflow.io/completed-forms/staff-time-sheet?formId=${formId}`
+  })
+}
+
 
 function showError(err) {
     console.error
     document.getElementById('returnMessage').innerHTML = `An error occurred when submitting this form, which was ${err}. Please contact the administrator for help.`
+}
+
+async function sendNotification(id, client) {
+  let message = `You have a new <br/><a href=phoenix-freedom-foundation-backend.webflow.io/completed-forms/staff-time-sheet?formId=${id}>Staff Time Sheet</a>`
+  console.log(message)
+  const url = 'https://pffm.azurewebsites.net/notices'
+  let notification = {
+    'name': client,
+    'notice' : message 
+  }
+  const header = {
+      'Content-Type': 'application/json',
+      "Access-Control-Allow-Origin" : "*"
+  }
+  
+  fetch(url, {
+    method: "POST",
+    headers: header,
+    body: JSON.stringify(notification)
+  })
+    .then(() => console.log('notice sent'))
+    .catch(console.error)
 }
